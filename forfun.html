@@ -1,1 +1,825 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>گاه‌شمار</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c1e24;
+    --bg-deep:#081418;
+    --card:#122a32;
+    --card-raised:#16323b;
+    --line:rgba(242,234,220,0.09);
+    --line-strong:rgba(242,234,220,0.16);
+    --turquoise:#3fa8a0;
+    --turquoise-soft:rgba(63,168,160,0.14);
+    --turquoise-dim:#2c7871;
+    --gold:#cc9a44;
+    --gold-soft:rgba(204,154,68,0.16);
+    --text:#f0e9dc;
+    --text-dim:#93a9ae;
+    --text-faint:#5d747a;
+    --radius-card:22px;
+    --radius-tab:14px;
+    --radius-cell:10px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(63,168,160,0.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Vazirmatn', sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:36px 18px 60px;
+  }
+  @media (max-width:480px){
+    body{padding:22px 12px 44px;}
+  }
+
+  .app{
+    width:100%;
+    max-width:460px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    margin-bottom:30px;
+  }
+  .motif{
+    width:64px;
+    height:64px;
+    position:relative;
+    margin-bottom:18px;
+    animation:motif-in 900ms cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes motif-in{
+    from{opacity:0; transform:scale(.7) rotate(-24deg);}
+    to{opacity:1; transform:scale(1) rotate(0deg);}
+  }
+  .motif .sq{
+    position:absolute;
+    inset:8px;
+    border:2px solid var(--turquoise);
+  }
+  .motif .sq.b{
+    border-color:var(--gold);
+    transform:rotate(45deg);
+  }
+  .motif .dot{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .motif .dot span{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--gold);
+  }
+
+  .hero h1{
+    font-size:29px;
+    font-weight:800;
+    letter-spacing:0.5px;
+    margin:0 0 6px;
+  }
+  .hero p{
+    font-size:14px;
+    color:var(--text-dim);
+    margin:0;
+    font-weight:500;
+  }
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:6px;
+    background:var(--bg-deep);
+    border:1px solid var(--line);
+    border-radius:var(--radius-tab);
+    padding:5px;
+    margin-bottom:16px;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:10px 6px;
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--text-dim);
+    background:transparent;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    transition:background 160ms ease, color 160ms ease;
+  }
+  .tab.active{
+    background:var(--turquoise-soft);
+    color:var(--turquoise);
+  }
+  .tab:not(.active):hover{
+    color:var(--text);
+  }
+  .tab:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-card);
+    padding:22px;
+  }
+  .panel{display:none;}
+  .panel.active{display:block;}
+
+  /* ---------- Calendar ---------- */
+  .cal-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .cal-head .month-label{
+    font-size:17px;
+    font-weight:700;
+  }
+  .cal-head .month-label small{
+    display:block;
+    font-size:12px;
+    font-weight:500;
+    color:var(--text-faint);
+    margin-top:2px;
+  }
+  .nav-btn{
+    width:36px;height:36px;
+    border-radius:50%;
+    border:1px solid var(--line-strong);
+    background:var(--bg-deep);
+    color:var(--text);
+    font-size:16px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    transition:border-color 150ms ease, color 150ms ease;
+  }
+  .nav-btn:hover{border-color:var(--turquoise); color:var(--turquoise);}
+  .nav-btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  .weekday-row{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    margin-bottom:6px;
+  }
+  .weekday-row span{
+    text-align:center;
+    font-size:11.5px;
+    font-weight:600;
+    color:var(--text-faint);
+  }
+
+  .day-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:4px;
+  }
+  .day-cell{
+    aspect-ratio:1;
+    display:flex;align-items:center;justify-content:center;
+    font-size:14px;
+    font-weight:500;
+    border-radius:var(--radius-cell);
+    background:transparent;
+    border:none;
+    color:var(--text);
+    cursor:pointer;
+    font-family:inherit;
+    position:relative;
+  }
+  .day-cell:hover{background:var(--line);}
+  .day-cell:focus-visible{outline:2px solid var(--gold); outline-offset:1px;}
+  .day-cell.empty{cursor:default; visibility:hidden;}
+  .day-cell.today{
+    box-shadow:inset 0 0 0 1.5px var(--gold);
+    color:var(--gold);
+    font-weight:700;
+  }
+  .day-cell.selected{
+    background:var(--turquoise);
+    color:#08201d;
+    font-weight:700;
+  }
+  .day-cell.selected.today{
+    box-shadow:inset 0 0 0 1.5px var(--gold);
+  }
+
+  .day-info{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid var(--line);
+    font-size:13.5px;
+    color:var(--text-dim);
+    line-height:2;
+  }
+  .day-info b{color:var(--text); font-weight:700;}
+
+  /* ---------- Fields ---------- */
+  .field-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .field{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field label{
+    font-size:12px;
+    color:var(--text-faint);
+    font-weight:600;
+  }
+  .field input, .field select{
+    font-family:inherit;
+    background:var(--bg-deep);
+    border:1px solid var(--line-strong);
+    color:var(--text);
+    border-radius:10px;
+    padding:10px 10px;
+    font-size:14.5px;
+    width:100%;
+    text-align:center;
+  }
+  .field select{text-align:right; cursor:pointer;}
+  .field input:focus, .field select:focus{
+    outline:none;
+    border-color:var(--turquoise);
+  }
+
+  .primary-btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:var(--turquoise);
+    color:#08201d;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:700;
+    cursor:pointer;
+    transition:background 150ms ease, transform 100ms ease;
+  }
+  .primary-btn:hover{background:#4bbdb4;}
+  .primary-btn:active{transform:scale(.985);}
+  .primary-btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  .hint{
+    font-size:12px;
+    color:var(--text-faint);
+    margin:-6px 0 14px;
+  }
+  .error-msg{
+    font-size:12.5px;
+    color:#e0a15c;
+    background:var(--gold-soft);
+    border-radius:10px;
+    padding:9px 12px;
+    margin-bottom:14px;
+    display:none;
+  }
+  .error-msg.show{display:block;}
+
+  /* ---------- Results ---------- */
+  .results{
+    margin-top:18px;
+    padding-top:18px;
+    border-top:1px solid var(--line);
+    display:none;
+  }
+  .results.show{display:block;}
+  .stat-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .stat{
+    flex:1;
+    background:var(--card-raised);
+    border-radius:14px;
+    padding:14px 8px;
+    text-align:center;
+  }
+  .stat .num{
+    font-size:24px;
+    font-weight:800;
+    color:var(--turquoise);
+    display:block;
+  }
+  .stat .lbl{
+    font-size:11.5px;
+    color:var(--text-dim);
+    margin-top:3px;
+    font-weight:600;
+  }
+  .extra-line{
+    font-size:13.5px;
+    color:var(--text-dim);
+    line-height:2;
+  }
+  .extra-line b{color:var(--text); font-weight:700;}
+
+  .result-banner{
+    margin-top:18px;
+    background:var(--card-raised);
+    border-radius:14px;
+    padding:16px;
+    text-align:center;
+    display:none;
+  }
+  .result-banner.show{display:block;}
+  .result-banner .big{
+    font-size:20px;
+    font-weight:800;
+    color:var(--gold);
+  }
+  .result-banner .small{
+    font-size:12.5px;
+    color:var(--text-dim);
+    margin-top:6px;
+    font-weight:500;
+  }
+
+  .toggle-row{
+    display:flex;
+    background:var(--bg-deep);
+    border:1px solid var(--line-strong);
+    border-radius:12px;
+    padding:4px;
+    margin-bottom:16px;
+  }
+  .toggle-opt{
+    flex:1;
+    text-align:center;
+    padding:9px 4px;
+    font-family:inherit;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-dim);
+    background:transparent;
+    border:none;
+    border-radius:9px;
+    cursor:pointer;
+  }
+  .toggle-opt.active{
+    background:var(--gold-soft);
+    color:var(--gold);
+  }
+
+  footer{
+    text-align:center;
+    margin-top:22px;
+    font-size:11.5px;
+    color:var(--text-faint);
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="hero">
+    <div class="motif">
+      <div class="sq a"></div>
+      <div class="sq b"></div>
+      <div class="dot"><span></span></div>
+    </div>
+    <h1>گاه‌شمار</h1>
+    <p>تقویم، سن و تبدیل تاریخ به‌روش هجری شمسی</p>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-panel="cal" role="tab" aria-selected="true">تقویم</button>
+    <button class="tab" data-panel="age" role="tab" aria-selected="false">محاسبه سن</button>
+    <button class="tab" data-panel="conv" role="tab" aria-selected="false">تبدیل تاریخ</button>
+  </div>
+
+  <div class="card">
+
+    <!-- ===== CALENDAR PANEL ===== -->
+    <section class="panel active" id="panel-cal">
+      <div class="cal-head">
+        <button class="nav-btn" id="prevMonth" aria-label="ماه قبل">›</button>
+        <div class="month-label" id="monthLabel">—</div>
+        <button class="nav-btn" id="nextMonth" aria-label="ماه بعد">‹</button>
+      </div>
+      <div class="weekday-row">
+        <span>ش</span><span>ی</span><span>د</span><span>س</span><span>چ</span><span>پ</span><span>ج</span>
+      </div>
+      <div class="day-grid" id="dayGrid"></div>
+      <div class="day-info" id="dayInfo"></div>
+    </section>
+
+    <!-- ===== AGE PANEL ===== -->
+    <section class="panel" id="panel-age">
+      <div class="field-row">
+        <div class="field">
+          <label for="ageY">سال</label>
+          <input id="ageY" inputmode="numeric" placeholder="۱۳۷۵" maxlength="4">
+        </div>
+        <div class="field">
+          <label for="ageM">ماه</label>
+          <input id="ageM" inputmode="numeric" placeholder="۶" maxlength="2">
+        </div>
+        <div class="field">
+          <label for="ageD">روز</label>
+          <input id="ageD" inputmode="numeric" placeholder="۱۵" maxlength="2">
+        </div>
+      </div>
+      <div class="hint">تاریخ تولد به شمسی — سن نسبت به امروز محاسبه می‌شود</div>
+      <div class="error-msg" id="ageError"></div>
+      <button class="primary-btn" id="ageBtn">محاسبه سن</button>
+
+      <div class="results" id="ageResults">
+        <div class="stat-row">
+          <div class="stat"><span class="num" id="ageYears">۰</span><span class="lbl">سال</span></div>
+          <div class="stat"><span class="num" id="ageMonths">۰</span><span class="lbl">ماه</span></div>
+          <div class="stat"><span class="num" id="ageDays">۰</span><span class="lbl">روز</span></div>
+        </div>
+        <div class="extra-line">
+          مجموع روزهای زندگی: <b id="ageTotalDays">—</b><br>
+          روز تولد: <b id="ageBirthWeekday">—</b>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CONVERTER PANEL ===== -->
+    <section class="panel" id="panel-conv">
+      <div class="toggle-row">
+        <button class="toggle-opt active" data-dir="j2g">شمسی ← میلادی</button>
+        <button class="toggle-opt" data-dir="g2j">میلادی ← شمسی</button>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="cvY">سال</label>
+          <input id="cvY" inputmode="numeric" placeholder="۱۴۰۳" maxlength="4">
+        </div>
+        <div class="field">
+          <label for="cvM">ماه</label>
+          <input id="cvM" inputmode="numeric" placeholder="۱" maxlength="2">
+        </div>
+        <div class="field">
+          <label for="cvD">روز</label>
+          <input id="cvD" inputmode="numeric" placeholder="۱" maxlength="2">
+        </div>
+      </div>
+      <div class="error-msg" id="cvError"></div>
+      <button class="primary-btn" id="cvBtn">تبدیل کن</button>
+
+      <div class="result-banner" id="cvResult">
+        <div class="big" id="cvBig">—</div>
+        <div class="small" id="cvSmall">—</div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>محاسبات بر پایه الگوریتم تقویم هجری شمسی (کبیسه‌های ۳۳ ساله)</footer>
+</div>
+
+<script>
+/* =========================================================
+   Jalali <-> Gregorian conversion core
+   ========================================================= */
+function div(a, b){ return Math.trunc(a / b); }
+function mod(a, b){ return a - Math.trunc(a / b) * b; }
+
+const JALAALI_BREAKS = [-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+
+function jalCal(jy){
+  const bl = JALAALI_BREAKS.length;
+  const gy = jy + 621;
+  let leapJ = -14, jp = JALAALI_BREAKS[0];
+  if (jy < jp || jy >= JALAALI_BREAKS[bl-1]) return null;
+  let jump = 0;
+  for(let i=1;i<bl;i++){
+    const jm = JALAALI_BREAKS[i];
+    jump = jm - jp;
+    if (jy < jm) break;
+    leapJ = leapJ + div(jump,33)*8 + div(mod(jump,33),4);
+    jp = jm;
+  }
+  let n = jy - jp;
+  leapJ = leapJ + div(n,33)*8 + div(mod(n,33)+3,4);
+  if (mod(jump,33) === 4 && jump - n === 4) leapJ += 1;
+  const leapG = div(gy,4) - div((div(gy,100)+1)*3,4) - 150;
+  const march = 20 + leapJ - leapG;
+  if (jump - n < 6) n = n - jump + div(jump,33)*33;
+  let leap = mod(mod(n+1,33)-1,4);
+  if (leap === -1) leap = 4;
+  return { leap, gy, march };
+}
+
+function isLeapJalaliYear(jy){
+  const r = jalCal(jy);
+  return r ? r.leap === 0 : false;
+}
+
+function g2d(gy, gm, gd){
+  let d = div((gy + div(gm-8,6) + 100100) * 1461, 4)
+        + div(153*mod(gm+9,12)+2, 5) + gd - 34840408;
+  d = d - div(div(gy + div(gm-8,6) + 100100,100)*3, 4) + 752;
+  return d;
+}
+function d2g(jdn){
+  let j = 4*jdn + 139361631;
+  j = j + div(div(4*jdn + 183187720, 146097)*3, 4)*4 - 3908;
+  const i = div(mod(j,1461),4)*5 + 308;
+  const gd = div(mod(i,153),5) + 1;
+  const gm = mod(div(i,153),12) + 1;
+  const gy = div(j,1461) - 100100 + div(8-gm,6);
+  return { gy, gm, gd };
+}
+function j2d(jy, jm, jd){
+  const r = jalCal(jy);
+  if(!r) return null;
+  return g2d(r.gy,3,r.march) + (jm-1)*31 - div(jm,7)*(jm-7) + jd - 1;
+}
+function d2j(jdn){
+  const gy = d2g(jdn).gy;
+  let jy = gy - 621;
+  const r = jalCal(jy);
+  const jdn1f = g2d(gy,3,r.march);
+  let k = jdn - jdn1f;
+  if (k >= 0){
+    if (k <= 185){
+      return { jy, jm: 1+div(k,31), jd: mod(k,31)+1 };
+    }
+    k -= 186;
+  } else {
+    jy -= 1;
+    k += 179;
+    if (r.leap === 1) k += 1;
+  }
+  return { jy, jm: 7+div(k,30), jd: mod(k,30)+1 };
+}
+function j2g(jy,jm,jd){ const d = j2d(jy,jm,jd); return d===null ? null : d2g(d); }
+function g2j(gy,gm,gd){ return d2j(g2d(gy,gm,gd)); }
+
+function jalaliMonthLength(jy, jm){
+  if (jm <= 6) return 31;
+  if (jm <= 11) return 30;
+  return isLeapJalaliYear(jy) ? 30 : 29;
+}
+function jalaliWeekdayIndex(jy,jm,jd){
+  // 0 = شنبه ... 6 = جمعه
+  const g = j2g(jy,jm,jd);
+  if(!g) return null;
+  const jsDay = new Date(Date.UTC(g.gy, g.gm-1, g.gd)).getUTCDay();
+  return (jsDay+1)%7;
+}
+
+const MONTH_NAMES = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const GREGORIAN_NAMES = ['ژانویه','فوریه','مارس','آوریل','مه','ژوئن','ژوئیه','اوت','سپتامبر','اکتبر','نوامبر','دسامبر'];
+const WEEKDAY_NAMES = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
+
+/* =========================================================
+   Persian digit helpers
+   ========================================================= */
+const FA_DIGITS = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+function toFaDigits(input){
+  return String(input).replace(/[0-9]/g, d => FA_DIGITS[d]);
+}
+function toEnDigits(input){
+  return String(input).replace(/[۰-۹]/g, d => FA_DIGITS.indexOf(d)).replace(/[^\d-]/g,'');
+}
+function parseIntField(el){
+  const v = toEnDigits(el.value).trim();
+  if (v === '' || isNaN(Number(v))) return NaN;
+  return parseInt(v, 10);
+}
+
+/* =========================================================
+   Today (Jalali), computed once
+   ========================================================= */
+const now = new Date();
+const todayJ = g2j(now.getFullYear(), now.getMonth()+1, now.getDate());
+
+/* =========================================================
+   Tabs
+   ========================================================= */
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(b=>{b.classList.remove('active'); b.setAttribute('aria-selected','false');});
+    btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.panel).classList.add('active');
+  });
+});
+
+/* =========================================================
+   Calendar panel
+   ========================================================= */
+let viewY = todayJ.jy, viewM = todayJ.jm;
+let selected = { jy: todayJ.jy, jm: todayJ.jm, jd: todayJ.jd };
+
+function renderCalendar(){
+  document.getElementById('monthLabel').innerHTML =
+    MONTH_NAMES[viewM-1] + ' ' + toFaDigits(viewY) +
+    '<small>' + (isLeapJalaliYear(viewY) ? 'سال کبیسه' : 'سال عادی') + '</small>';
+
+  const grid = document.getElementById('dayGrid');
+  grid.innerHTML = '';
+  const startIdx = jalaliWeekdayIndex(viewY, viewM, 1);
+  const len = jalaliMonthLength(viewY, viewM);
+
+  for(let i=0;i<startIdx;i++){
+    const e = document.createElement('div');
+    e.className = 'day-cell empty';
+    grid.appendChild(e);
+  }
+  for(let d=1; d<=len; d++){
+    const cell = document.createElement('button');
+    cell.className = 'day-cell';
+    cell.textContent = toFaDigits(d);
+    const isToday = (viewY===todayJ.jy && viewM===todayJ.jm && d===todayJ.jd);
+    const isSel = (viewY===selected.jy && viewM===selected.jm && d===selected.jd);
+    if (isToday) cell.classList.add('today');
+    if (isSel) cell.classList.add('selected');
+    cell.addEventListener('click', ()=>{
+      selected = { jy: viewY, jm: viewM, jd: d };
+      renderCalendar();
+    });
+    grid.appendChild(cell);
+  }
+  renderDayInfo();
+}
+
+function renderDayInfo(){
+  const wIdx = jalaliWeekdayIndex(selected.jy, selected.jm, selected.jd);
+  const g = j2g(selected.jy, selected.jm, selected.jd);
+  const isToday = (selected.jy===todayJ.jy && selected.jm===todayJ.jm && selected.jd===todayJ.jd);
+  document.getElementById('dayInfo').innerHTML =
+    (isToday ? '<b>امروز</b> — ' : '') +
+    toFaDigits(selected.jd) + ' ' + MONTH_NAMES[selected.jm-1] + ' ' + toFaDigits(selected.jy) +
+    '، <b>' + WEEKDAY_NAMES[wIdx] + '</b><br>' +
+    'معادل میلادی: <b>' + g.gd + ' ' + GREGORIAN_NAMES[g.gm-1] + ' ' + g.gy + '</b>';
+}
+
+document.getElementById('prevMonth').addEventListener('click', ()=>{
+  viewM--; if(viewM<1){ viewM=12; viewY--; }
+  renderCalendar();
+});
+document.getElementById('nextMonth').addEventListener('click', ()=>{
+  viewM++; if(viewM>12){ viewM=1; viewY++; }
+  renderCalendar();
+});
+
+renderCalendar();
+
+/* =========================================================
+   Age panel
+   ========================================================= */
+function showFieldError(el, msg){
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function hideFieldError(el){
+  el.classList.remove('show');
+}
+
+document.getElementById('ageBtn').addEventListener('click', ()=>{
+  const errEl = document.getElementById('ageError');
+  hideFieldError(errEl);
+  document.getElementById('ageResults').classList.remove('show');
+
+  const by = parseIntField(document.getElementById('ageY'));
+  const bm = parseIntField(document.getElementById('ageM'));
+  const bd = parseIntField(document.getElementById('ageD'));
+
+  if ([by,bm,bd].some(isNaN)){
+    showFieldError(errEl, 'سال، ماه و روز تولد را کامل وارد کنید.');
+    return;
+  }
+  if (bm < 1 || bm > 12){
+    showFieldError(errEl, 'ماه باید بین ۱ تا ۱۲ باشد.');
+    return;
+  }
+  const maxDay = jalaliMonthLength(by, bm);
+  if (bd < 1 || bd > maxDay){
+    showFieldError(errEl, MONTH_NAMES[bm-1] + ' سال ' + toFaDigits(by) + ' حداکثر ' + toFaDigits(maxDay) + ' روز دارد.');
+    return;
+  }
+  const birthJdn = j2d(by,bm,bd);
+  const todayJdn = j2d(todayJ.jy, todayJ.jm, todayJ.jd);
+  if (birthJdn === null || birthJdn > todayJdn){
+    showFieldError(errEl, 'تاریخ تولد نمی‌تواند بعد از امروز باشد.');
+    return;
+  }
+
+  let years = todayJ.jy - by;
+  let months = todayJ.jm - bm;
+  let days = todayJ.jd - bd;
+  if (days < 0){
+    months -= 1;
+    const prevM = todayJ.jm===1 ? 12 : todayJ.jm-1;
+    const prevY = todayJ.jm===1 ? todayJ.jy-1 : todayJ.jy;
+    days += jalaliMonthLength(prevY, prevM);
+  }
+  if (months < 0){
+    months += 12;
+    years -= 1;
+  }
+
+  const totalDays = todayJdn - birthJdn;
+  const birthWeekday = WEEKDAY_NAMES[jalaliWeekdayIndex(by,bm,bd)];
+
+  document.getElementById('ageYears').textContent = toFaDigits(years);
+  document.getElementById('ageMonths').textContent = toFaDigits(months);
+  document.getElementById('ageDays').textContent = toFaDigits(days);
+  document.getElementById('ageTotalDays').textContent = toFaDigits(totalDays) + ' روز';
+  document.getElementById('ageBirthWeekday').textContent = birthWeekday;
+  document.getElementById('ageResults').classList.add('show');
+});
+
+/* =========================================================
+   Converter panel
+   ========================================================= */
+let cvDir = 'j2g';
+document.querySelectorAll('.toggle-opt').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.toggle-opt').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    cvDir = btn.dataset.dir;
+    document.getElementById('cvResult').classList.remove('show');
+    document.getElementById('cvError').classList.remove('show');
+    const yEl = document.getElementById('cvY'), mEl = document.getElementById('cvM'), dEl = document.getElementById('cvD');
+    if (cvDir === 'j2g'){
+      yEl.placeholder = toFaDigits(1403); mEl.placeholder='۱'; dEl.placeholder='۱';
+    } else {
+      yEl.placeholder = '2024'; mEl.placeholder='3'; dEl.placeholder='20';
+    }
+  });
+});
+
+document.getElementById('cvBtn').addEventListener('click', ()=>{
+  const errEl = document.getElementById('cvError');
+  hideFieldError(errEl);
+  document.getElementById('cvResult').classList.remove('show');
+
+  const y = parseIntField(document.getElementById('cvY'));
+  const m = parseIntField(document.getElementById('cvM'));
+  const d = parseIntField(document.getElementById('cvD'));
+
+  if ([y,m,d].some(isNaN)){
+    showFieldError(errEl, 'سال، ماه و روز را کامل وارد کنید.');
+    return;
+  }
+  if (m < 1 || m > 12){
+    showFieldError(errEl, 'ماه باید بین ۱ تا ۱۲ باشد.');
+    return;
+  }
+
+  if (cvDir === 'j2g'){
+    const maxDay = jalaliMonthLength(y, m);
+    if (d < 1 || d > maxDay){
+      showFieldError(errEl, MONTH_NAMES[m-1] + ' سال ' + toFaDigits(y) + ' حداکثر ' + toFaDigits(maxDay) + ' روز دارد.');
+      return;
+    }
+    const g = j2g(y,m,d);
+    if(!g){ showFieldError(errEl, 'سال وارد شده خارج از محدوده پشتیبانی‌شده است.'); return; }
+    const wIdx = jalaliWeekdayIndex(y,m,d);
+    document.getElementById('cvBig').textContent = g.gd + ' ' + GREGORIAN_NAMES[g.gm-1] + ' ' + g.gy;
+    document.getElementById('cvSmall').textContent =
+      toFaDigits(d) + ' ' + MONTH_NAMES[m-1] + ' ' + toFaDigits(y) + ' — ' + WEEKDAY_NAMES[wIdx];
+  } else {
+    const gLeap = (y%4===0 && y%100!==0) || y%400===0;
+    const gDaysInMonth = [31, gLeap?29:28,31,30,31,30,31,31,30,31,30,31];
+    if (d < 1 || d > gDaysInMonth[m-1]){
+      showFieldError(errEl, 'روز واردشده برای این ماه معتبر نیست.');
+      return;
+    }
+    const j = g2j(y,m,d);
+    const wIdx = jalaliWeekdayIndex(j.jy,j.jm,j.jd);
+    document.getElementById('cvBig').textContent = toFaDigits(j.jd) + ' ' + MONTH_NAMES[j.jm-1] + ' ' + toFaDigits(j.jy);
+    document.getElementById('cvSmall').textContent =
+      d + ' ' + GREGORIAN_NAMES[m-1] + ' ' + y + ' — ' + WEEKDAY_NAMES[wIdx];
+  }
+  document.getElementById('cvResult').classList.add('show');
+});
+</script>
+</body>
+</html>
 
